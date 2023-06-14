@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.junit.jupiter.api.Assertions
@@ -84,6 +85,27 @@ class PostingControllerTest(
         val savedPost = postRepository.findAll()[0]
         assertEquals(title, savedPost.title)
         assertEquals(content, savedPost.content)
+    }
+
+    @Test
+    @DisplayName("게시글을 하나 조회한다.")
+    fun get_one_post() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when & then
+        mockMvc.perform(
+            get("/posts/{postId}", post.id))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(post.id))
+            .andExpect(jsonPath("$.title").value(post.title))
+            .andExpect(jsonPath("$.content").value(post.content))
+            .andDo(print())
+
     }
 
 

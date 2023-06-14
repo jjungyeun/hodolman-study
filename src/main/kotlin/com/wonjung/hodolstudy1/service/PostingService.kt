@@ -2,6 +2,8 @@ package com.wonjung.hodolstudy1.service
 
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.dto.res.PostResponseDto
+import com.wonjung.hodolstudy1.error.PostNotFoundException
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.springframework.stereotype.Service
@@ -19,5 +21,16 @@ class PostingService(
         )
         postRepository.save(post)
         return post.id
+    }
+
+    fun getOne(postId: Long): PostResponseDto {
+        return postRepository.findById(postId)
+            .orElseThrow { PostNotFoundException(postId) }
+            .run { PostResponseDto(
+                    id = this.id,
+                    title = this.title,
+                    content = this.content
+                )
+            }
     }
 }
