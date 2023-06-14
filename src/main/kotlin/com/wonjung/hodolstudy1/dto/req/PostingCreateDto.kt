@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank
 
 data class PostingCreateDto(
     @field:NotBlank
-    val title: String?,
+    val title: String? = "",
     @field:NotBlank
-    val content: String?
+    val content: String? = ""
 )

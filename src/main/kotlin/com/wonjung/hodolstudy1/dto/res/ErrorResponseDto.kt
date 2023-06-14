@@ -10,7 +10,7 @@ import com.wonjung.hodolstudy1.error.ValidationError
 data class ErrorResponseDto(
     val status: Int,
     val errorCode: String,
-    val message: String?,
+    val message: String? = "",
     val validation: MutableList<ValidationError> = mutableListOf()
 ) {
     fun addValidation(ve: ValidationError) {

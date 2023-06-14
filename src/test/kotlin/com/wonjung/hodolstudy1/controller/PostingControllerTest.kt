@@ -1,10 +1,17 @@
 package com.wonjung.hodolstudy1.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.repository.PostRepository
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -12,14 +19,22 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-@WebMvcTest // MockMvc 빈을 주입해준다.
+@AutoConfigureMockMvc // MockMvc 빈을 주입해준다.
+@SpringBootTest
 class PostingControllerTest(
-    @Autowired private val mockMvc: MockMvc
+    @Autowired val mockMvc: MockMvc,
+    @Autowired val postRepository: PostRepository,
+    @Autowired val objectMapper: ObjectMapper
 ) {
 
+    @BeforeEach // 각 테스트 메소드가 실행되기 전에 실행되는 메소드
+    fun tearDown() {
+        postRepository.deleteAll()
+    }
+
     @Test
-    @DisplayName("/posts 요청 시 Hello World를 출력한다.")
-    fun test() {
+    @DisplayName("GET /posts 요청 시 Hello World를 출력한다.")
+    fun get_test() {
         // when
         mockMvc.perform(get("/posts"))
             .andExpect(status().isOk)
@@ -28,34 +43,47 @@ class PostingControllerTest(
     }
 
     @Test
-    @DisplayName("/posts 요청 시 빈 객체를 출력한다.")
-    fun posting_test() {
-        // when & then
-        mockMvc.perform(
-            post("/posts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\": \"제목입니다.\", \"content\": \"내용입니다.\"}")
-        )
-            .andExpect(status().isOk)
-            .andExpect(content().string("{}"))
-            .andDo(print())
-    }
+    @DisplayName("POST /posts 요청 시 title, content 값은 필수다.")
+    fun posting_validation_test() {
+        // given
+        val content = "내용입니다."
+        val requestDto = PostingCreateDto(content = content)
 
-    @Test
-    @DisplayName("/posts 요청 시 title, content 값은 필수다.")
-    fun posting_test_2() {
         // when & then
         mockMvc.perform(
             post("/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-//                .content("{\"title\": \"  \", \"content\": \"내용입니다.\"}")
-                .content("{}")
+                .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
             .andExpect(jsonPath("$.error_code").value("FIELD_VALIDATION_ERROR"))
             .andExpect(jsonPath("$.validation").isArray)
             .andDo(print())
+    }
+
+    @Test
+    @DisplayName("POST /posts 요청 시 게시글을 DB에 저장한다.")
+    fun posting_save_test() {
+        // given
+        val title = "제목입니다."
+        val content = "내용입니다."
+        val requestDto = PostingCreateDto(title = title, content = content)
+
+        // when
+        mockMvc.perform(
+            post("/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+        )
+            .andExpect(status().isOk)
+            .andDo(print())
+
+        // then
+        assertEquals(1, postRepository.count())
+        val savedPost = postRepository.findAll()[0]
+        assertEquals(title, savedPost.title)
+        assertEquals(content, savedPost.content)
     }
 
 
