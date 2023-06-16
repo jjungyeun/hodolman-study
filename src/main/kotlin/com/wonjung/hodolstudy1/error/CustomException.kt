@@ -1,14 +1,14 @@
 package com.wonjung.hodolstudy1.error
 
 open class CustomException(
-    errorCode: ErrorCode,
+    val errorCode: ErrorCode,
     msg: String = ""
 ): RuntimeException(
-    if (msg.isBlank()) errorCode.message else "${errorCode.message}: $msg"
+    if (msg.isBlank()) errorCode.message else "${errorCode.message} - $msg"
 )
 
 class PostNotFoundException(
-    postId: Long
+    val postId: Long
 ): CustomException(
     errorCode = ErrorCode.POST_NOT_EXIST,
     msg = "post_id: $postId") {

@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import java.lang.StringBuilder
 
 @RestControllerAdvice
 class GlobalControllerExceptionHandler {
@@ -25,5 +24,17 @@ class GlobalControllerExceptionHandler {
 
         return ResponseEntity.badRequest()
             .body(errorResponseDto)
+    }
+
+    @ExceptionHandler(CustomException::class)
+    fun handleCustomException(ex: CustomException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(ex.errorCode.status)
+            .body(ErrorResponseDto(
+                    status = ex.errorCode.status.value(),
+                    errorCode = ex.errorCode.toString(),
+                    message = ex.message
+                )
+            )
     }
 }
