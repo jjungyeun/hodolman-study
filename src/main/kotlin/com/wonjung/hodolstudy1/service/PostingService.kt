@@ -52,7 +52,7 @@ class PostingService(
     }
 
     fun getPostsWithPaging(pageable: Pageable): Page<PostResponseDto> {
-        return postRepository.findAll(pageable)
+        return postRepository.getList(pageable)
             .map { post ->
                 PostResponseDto(
                     id = post.id,

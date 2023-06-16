@@ -120,6 +120,15 @@ class PostingControllerTest(
             .andExpect(jsonPath("$.content[0].content").value("내용 30"))
             .andDo(print())
 
+        mockMvc.perform(
+            // 옛날 글부터 보기
+            get("/posts?page={page}&size={size}&sort=id,asc", 1, 5))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.content.length()").value(5))
+            .andExpect(jsonPath("$.content[0].title").value("제목 1"))
+            .andExpect(jsonPath("$.content[0].content").value("내용 1"))
+            .andDo(print())
+
     }
 
 
