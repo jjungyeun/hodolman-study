@@ -6,6 +6,8 @@ import com.wonjung.hodolstudy1.dto.res.PostResponseDto
 import com.wonjung.hodolstudy1.error.PostNotFoundException
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.repository.PostRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,7 +30,8 @@ class PostingService(
         log.info("Get post (id: $postId).")
         return postRepository.findById(postId)
             .orElseThrow { PostNotFoundException(postId) }
-            .run { PostResponseDto(
+            .run {
+                PostResponseDto(
                     id = this.id,
                     title = this.title,
                     content = this.content
@@ -39,6 +42,17 @@ class PostingService(
     fun getAll(): List<PostResponseDto> {
         log.info("Get all posts.")
         return postRepository.findAll()
+            .map { post ->
+                PostResponseDto(
+                    id = post.id,
+                    title = post.title,
+                    content = post.content
+                )
+            }
+    }
+
+    fun getPostsWithPaging(pageable: Pageable): Page<PostResponseDto> {
+        return postRepository.findAll(pageable)
             .map { post ->
                 PostResponseDto(
                     id = post.id,

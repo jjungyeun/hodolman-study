@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -99,33 +100,26 @@ class PostingControllerTest(
     }
 
     @Test
-    @DisplayName("모든 게시글 리스트를 조회한다.")
-    fun get_all_posts() {
+    @DisplayName("게시글 페이지를 조회한다.")
+    fun get_posts_with_paging() {
         // given
-        val post1 = Post(
-            title = "제목",
-            content = "내용"
-        )
-        postRepository.save(post1)
-
-        val post2 = Post(
-            title = "제목2",
-            content = "내용2"
-        )
-        postRepository.save(post2)
+        for (i in 1..30) {
+            val post = Post(
+                title = "제목 $i",
+                content = "내용 $i"
+            )
+            postRepository.save(post)
+        }
 
         // when & then
         mockMvc.perform(
-            get("/posts"))
+            get("/posts?page={page}&size={size}", 1, 5))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].id").value(post1.id))
-            .andExpect(jsonPath("$[0].title").value(post1.title))
-            .andExpect(jsonPath("$[0].content").value(post1.content))
-            .andExpect(jsonPath("$[1].id").value(post2.id))
-            .andExpect(jsonPath("$[1].title").value(post2.title))
-            .andExpect(jsonPath("$[1].content").value(post2.content))
+            .andExpect(jsonPath("$.content.length()").value(5))
+            .andExpect(jsonPath("$.content[0].title").value("제목 30"))
+            .andExpect(jsonPath("$.content[0].content").value("내용 30"))
             .andDo(print())
+
     }
 
 

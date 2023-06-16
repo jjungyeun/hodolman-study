@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageRequest
 
 @SpringBootTest
 class PostingServiceTest(
@@ -81,6 +82,26 @@ class PostingServiceTest(
         assertEquals(post2.id, response[1].id)
         assertEquals(post2.title, response[1].title)
         assertEquals(post2.content, response[1].content)
+
+    }
+
+    @Test
+    @DisplayName("게시글 페이지를 조회한다.")
+    fun get_posts_with_paging() {
+        // given
+        for (i in 1..30) {
+            val post = Post(
+                title = "제목 $i",
+                content = "내용 $i"
+            )
+            postRepository.save(post)
+        }
+
+        // when
+        val response = postingService.getPostsWithPaging(PageRequest.of(0, 3))
+
+        // then
+        assertEquals(3, response.content.size)
 
     }
 }
