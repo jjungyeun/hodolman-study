@@ -1,1 +1,9 @@
-
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/hodol1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
