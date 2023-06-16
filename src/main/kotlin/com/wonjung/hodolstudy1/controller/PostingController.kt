@@ -22,11 +22,6 @@ class PostingController(
 
     val log = logger()
 
-    @GetMapping
-    fun get(): String {
-        return "Hello World!"
-    }
-
     @PostMapping
     fun post(
         @RequestBody @Valid createDto: PostingCreateDto
@@ -43,6 +38,13 @@ class PostingController(
         val postResponseDto = postingService.getOne(postId)
         return ResponseEntity.ok()
             .body(postResponseDto)
+    }
+
+    @GetMapping
+    fun getAll(): ResponseEntity<List<PostResponseDto>> {
+        val responseDtos = postingService.getAll()
+        return ResponseEntity.ok()
+            .body(responseDtos)
     }
 
 }

@@ -54,4 +54,33 @@ class PostingServiceTest(
         assertEquals(post.content, response.content)
 
     }
+
+    @Test
+    @DisplayName("게시글을 모두 조회한다.")
+    fun get_all_posts() {
+        // given
+        val post1 = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post1)
+
+        val post2 = Post(
+            title = "제목2",
+            content = "내용2"
+        )
+        postRepository.save(post2)
+
+        // when
+        val response = postingService.getAll()
+
+        // then
+        assertEquals(post1.id, response[0].id)
+        assertEquals(post1.title, response[0].title)
+        assertEquals(post1.content, response[0].content)
+        assertEquals(post2.id, response[1].id)
+        assertEquals(post2.title, response[1].title)
+        assertEquals(post2.content, response[1].content)
+
+    }
 }

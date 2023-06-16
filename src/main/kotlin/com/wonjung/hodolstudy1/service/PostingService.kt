@@ -15,6 +15,7 @@ class PostingService(
     val log = logger()
 
     fun write(createDto: PostingCreateDto): Long {
+        log.info("Write post (title: ${createDto.title}, content: ${createDto.content}).")
         val post = Post(
             title = createDto.title!!,
             content = createDto.content!!
@@ -24,12 +25,25 @@ class PostingService(
     }
 
     fun getOne(postId: Long): PostResponseDto {
+        log.info("Get post (id: $postId).")
         return postRepository.findById(postId)
             .orElseThrow { PostNotFoundException(postId) }
             .run { PostResponseDto(
                     id = this.id,
                     title = this.title,
                     content = this.content
+                )
+            }
+    }
+
+    fun getAll(): List<PostResponseDto> {
+        log.info("Get all posts.")
+        return postRepository.findAll()
+            .map { post ->
+                PostResponseDto(
+                    id = post.id,
+                    title = post.title,
+                    content = post.content
                 )
             }
     }

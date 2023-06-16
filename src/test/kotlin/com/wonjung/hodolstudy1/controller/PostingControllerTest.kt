@@ -34,16 +34,6 @@ class PostingControllerTest(
     }
 
     @Test
-    @DisplayName("GET /posts 요청 시 Hello World를 출력한다.")
-    fun get_test() {
-        // when
-        mockMvc.perform(get("/posts"))
-            .andExpect(status().isOk)
-            .andExpect(content().string("Hello World!"))
-            .andDo(print())
-    }
-
-    @Test
     @DisplayName("POST /posts 요청 시 title, content 값은 필수다.")
     fun posting_validation_test() {
         // given
@@ -106,6 +96,36 @@ class PostingControllerTest(
             .andExpect(jsonPath("$.content").value(post.content))
             .andDo(print())
 
+    }
+
+    @Test
+    @DisplayName("모든 게시글 리스트를 조회한다.")
+    fun get_all_posts() {
+        // given
+        val post1 = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post1)
+
+        val post2 = Post(
+            title = "제목2",
+            content = "내용2"
+        )
+        postRepository.save(post2)
+
+        // when & then
+        mockMvc.perform(
+            get("/posts"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(post1.id))
+            .andExpect(jsonPath("$[0].title").value(post1.title))
+            .andExpect(jsonPath("$[0].content").value(post1.content))
+            .andExpect(jsonPath("$[1].id").value(post2.id))
+            .andExpect(jsonPath("$[1].title").value(post2.title))
+            .andExpect(jsonPath("$[1].content").value(post2.content))
+            .andDo(print())
     }
 
 
