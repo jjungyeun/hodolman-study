@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.error
 
 import com.wonjung.hodolstudy1.dto.res.ErrorResponseDto
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -33,6 +34,18 @@ class GlobalControllerExceptionHandler {
             .body(ErrorResponseDto(
                     status = ex.errorCode.status.value(),
                     errorCode = ex.errorCode.toString(),
+                    message = ex.message
+                )
+            )
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(ex: Exception): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponseDto(
+                    status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    errorCode = HttpStatus.INTERNAL_SERVER_ERROR.name,
                     message = ex.message
                 )
             )

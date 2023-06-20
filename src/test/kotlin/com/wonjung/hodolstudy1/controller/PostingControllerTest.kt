@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
+import com.wonjung.hodolstudy1.error.ErrorCode
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -130,7 +131,7 @@ class PostingControllerTest(
 
 
     @Test
-    @DisplayName("POST /posts/{postId} 요청 시 게시글을 수정한다.")
+    @DisplayName("PATCH /posts/{postId} 요청 시 게시글을 수정한다.")
     fun posting_edit_test() {
         // given
         val post = Post(
@@ -144,7 +145,7 @@ class PostingControllerTest(
 
         // when
         mockMvc.perform(
-            post("/posts/{postId}", post.id)
+            patch("/posts/{postId}", post.id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto))
         )
@@ -180,4 +181,71 @@ class PostingControllerTest(
         assertEquals(0, postRepository.count())
     }
 
+
+    @Test
+    @DisplayName("게시글을 하나 조회하는 데 실패한다.")
+    fun get_one_post_and_fail() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when & then
+        mockMvc.perform(
+            get("/posts/{postId}", post.id+1))
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.status").value(ErrorCode.POST_NOT_EXIST.status.value()))
+            .andExpect(jsonPath("$.error_code").value(ErrorCode.POST_NOT_EXIST.toString()))
+            .andDo(print())
+
+    }
+
+    @Test
+    @DisplayName("게시글을 하나 삭제하는 데 실패한다.")
+    fun delete_one_post_and_fail() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when & then
+        mockMvc.perform(
+            delete("/posts/{postId}", post.id+1)
+        )
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.status").value(ErrorCode.POST_NOT_EXIST.status.value()))
+            .andExpect(jsonPath("$.error_code").value(ErrorCode.POST_NOT_EXIST.toString()))
+            .andDo(print())
+
+    }
+
+    @Test
+    @DisplayName("게시글을 하나 수정하는 데 실패한다.")
+    fun edit_one_post_and_fail() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        val editedContent = "수정된 내용입니다"
+        val requestDto = PostingEditDto(content = editedContent)
+
+        // when
+        mockMvc.perform(
+            patch("/posts/{postId}", post.id+1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+        )
+            .andExpect(status().isNotFound)
+            .andExpect(jsonPath("$.status").value(ErrorCode.POST_NOT_EXIST.status.value()))
+            .andExpect(jsonPath("$.error_code").value(ErrorCode.POST_NOT_EXIST.toString()))
+            .andDo(print())
+
+    }
 }

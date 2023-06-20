@@ -147,4 +147,33 @@ class PostingServiceTest(
         // then
         assertEquals(0, postRepository.count())
     }
+
+    @Test
+    @DisplayName("게시글을 하나 조회하는데 실패한다.")
+    fun get_one_post_and_no_post() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when & then
+        assertThrows(PostNotFoundException::class.java) {postingService.getOne(post.id+1)}
+
+    }
+
+    @Test
+    @DisplayName("게시글을 삭제하는 데 실패한다.")
+    fun delete_post_and_no_post() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when & then
+        assertThrows(PostNotFoundException::class.java) {postingService.deletePost(post.id+1)}
+    }
 }
