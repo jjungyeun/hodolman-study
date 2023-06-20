@@ -39,7 +39,7 @@ class PostRepositoryImpl(
             if (sort.property == "id")
                 return postOrderBy(sort.direction)
         }
-        return null
+        return postOrderBy(Sort.Direction.DESC)
     }
 
     private fun postOrderBy(direction: Sort.Direction): OrderSpecifier<Long>? {
