@@ -3,6 +3,7 @@ package com.wonjung.hodolstudy1.controller
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.dto.res.CreateResponseDto
+import com.wonjung.hodolstudy1.dto.res.DeleteResponseDto
 import com.wonjung.hodolstudy1.dto.res.PostResponseDto
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.service.PostingService
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.domain.Sort.Direction.*
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -64,6 +66,13 @@ class PostingController(
         val responseDto = postingService.editPost(postId, editDto)
         return ResponseEntity.ok()
             .body(responseDto)
+    }
+
+    @DeleteMapping("/{postId}")
+    fun deletePost(@PathVariable postId: Long): ResponseEntity<DeleteResponseDto> {
+        postingService.deletePost(postId)
+        return ResponseEntity.ok()
+            .body(DeleteResponseDto(deleted = postId))
     }
 
 }

@@ -130,4 +130,21 @@ class PostingServiceTest(
         assertEquals(post.content, editedPost.content)
 
     }
+
+    @Test
+    @DisplayName("게시글을 삭제한다.")
+    fun delete_post() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when
+        postingService.deletePost(post.id)
+
+        // then
+        assertEquals(0, postRepository.count())
+    }
 }

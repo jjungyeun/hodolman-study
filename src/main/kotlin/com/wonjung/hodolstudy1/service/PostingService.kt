@@ -78,4 +78,11 @@ class PostingService(
             content = post.content
         )
     }
+
+    @Transactional
+    fun deletePost(postId: Long) {
+        val post = postRepository.findById(postId)
+            .orElseThrow { PostNotFoundException(postId) }
+        postRepository.delete(post)
+    }
 }

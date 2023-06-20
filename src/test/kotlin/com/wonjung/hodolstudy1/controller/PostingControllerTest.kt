@@ -157,4 +157,27 @@ class PostingControllerTest(
         assertEquals(editedContent, savedPost.content)
     }
 
+
+    @Test
+    @DisplayName("DELETE /posts/{postId} 요청 시 게시글을 삭제한다.")
+    fun posting_delete_test() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        // when
+        mockMvc.perform(
+            delete("/posts/{postId}", post.id)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andDo(print())
+
+        // then
+        assertEquals(0, postRepository.count())
+    }
+
 }
