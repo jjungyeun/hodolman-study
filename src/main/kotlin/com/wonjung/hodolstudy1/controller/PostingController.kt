@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.controller
 
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.dto.res.CreateResponseDto
 import com.wonjung.hodolstudy1.dto.res.PostResponseDto
 import com.wonjung.hodolstudy1.log.logger
@@ -54,6 +55,15 @@ class PostingController(
         val responseDtos = postingService.getPostsWithPaging(pageable)
         return ResponseEntity.ok()
             .body(responseDtos)
+    }
+
+    @PostMapping("/{postId}")
+    fun editPost(@PathVariable postId: Long,
+                 @RequestBody editDto: PostingEditDto
+    ): ResponseEntity<PostResponseDto> {
+        val responseDto = postingService.editPost(postId, editDto)
+        return ResponseEntity.ok()
+            .body(responseDto)
     }
 
 }

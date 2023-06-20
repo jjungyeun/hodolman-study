@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.service
 
 import com.wonjung.hodolstudy1.domain.Post
+import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.res.PostResponseDto
 import com.wonjung.hodolstudy1.error.PostNotFoundException
@@ -9,13 +10,16 @@ import com.wonjung.hodolstudy1.repository.PostRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional(readOnly = true)
 class PostingService(
     val postRepository: PostRepository
 ) {
     val log = logger()
 
+    @Transactional
     fun write(createDto: PostingCreateDto): Long {
         log.info("Write post (title: ${createDto.title}, content: ${createDto.content}).")
         val post = Post(
@@ -60,5 +64,18 @@ class PostingService(
                     content = post.content
                 )
             }
+    }
+
+    @Transactional
+    fun editPost(postId: Long, editDto: PostingEditDto): PostResponseDto {
+        val post = postRepository.findById(postId)
+            .orElseThrow { PostNotFoundException(postId) }
+        editDto.title?.let { post.editTitle(it) }
+        editDto.content?.let { post.editContent(it) }
+        return PostResponseDto(
+            id = post.id,
+            title = post.title,
+            content = post.content
+        )
     }
 }

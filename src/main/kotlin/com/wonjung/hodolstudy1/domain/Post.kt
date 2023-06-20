@@ -7,7 +7,6 @@ class Post(
     title: String,
     content: String
 ) {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, name = "post_id")
@@ -21,4 +20,12 @@ class Post(
     @Lob
     var content: String = content
         private set
+
+    fun editTitle(title: String) {
+        this.title = title
+    }
+
+    fun editContent(content: String) {
+        this.content = content
+    }
 }

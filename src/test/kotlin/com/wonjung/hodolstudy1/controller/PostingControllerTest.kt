@@ -3,17 +3,15 @@ package com.wonjung.hodolstudy1.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.repository.PostRepository
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -128,8 +126,35 @@ class PostingControllerTest(
             .andExpect(jsonPath("$.content[0].title").value("제목 1"))
             .andExpect(jsonPath("$.content[0].content").value("내용 1"))
             .andDo(print())
-
     }
 
+
+    @Test
+    @DisplayName("POST /posts/{postId} 요청 시 게시글을 수정한다.")
+    fun posting_edit_test() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        val editedContent = "수정된 내용입니다"
+        val requestDto = PostingEditDto(content = editedContent)
+
+        // when
+        mockMvc.perform(
+            post("/posts/{postId}", post.id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+        )
+            .andExpect(status().isOk)
+            .andDo(print())
+
+        // then
+        val savedPost = postRepository.findAll()[0]
+        assertEquals(post.title, savedPost.title)
+        assertEquals(editedContent, savedPost.content)
+    }
 
 }

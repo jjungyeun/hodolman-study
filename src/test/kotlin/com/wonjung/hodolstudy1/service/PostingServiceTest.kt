@@ -2,6 +2,8 @@ package com.wonjung.hodolstudy1.service
 
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.dto.req.PostingEditDto
+import com.wonjung.hodolstudy1.error.PostNotFoundException
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -102,6 +104,30 @@ class PostingServiceTest(
 
         // then
         assertEquals(3, response.content.size)
+
+    }
+
+    @Test
+    @DisplayName("게시글 제목을 수정한다.")
+    fun edit_post() {
+        // given
+        val post = Post(
+            title = "제목",
+            content = "내용"
+        )
+        postRepository.save(post)
+
+        val editDto = PostingEditDto(title = "제목 수정됨")
+
+        // when
+        postingService.editPost(post.id, editDto)
+
+        // then
+        val editedPost = postRepository.findById(post.id)
+            .orElseThrow { PostNotFoundException(post.id) }
+
+        assertEquals(editDto.title, editedPost.title)
+        assertEquals(post.content, editedPost.content)
 
     }
 }
