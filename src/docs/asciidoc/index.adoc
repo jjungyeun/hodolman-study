@@ -1,0 +1,50 @@
+= 호돌맨 강의 API Doc 예시
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+ifndef::snippetsDir[]
+:snippetsDir: D:\Project\hodol\hodol-study-1\build\generated-snippets
+endif::[]
+
+== 포스트 단건 조회
+
+=== 요청
+
+include::{snippetsDir}/post-select-one/http-request.adoc[]
+
+include::{snippetsDir}/post-select-one/path-parameters.adoc[]
+
+=== 응답
+
+include::{snippetsDir}/post-select-one/http-response.adoc[]
+
+=== 응답 필드
+
+include::{snippetsDir}/post-select-one/response-fields.adoc[]
+
+=== CURL
+
+include::{snippetsDir}/post-select-one/curl-request.adoc[]
+
+
+== 포스트 작성
+
+=== 요청
+
+include::{snippetsDir}/post-create/http-request.adoc[]
+
+include::{snippetsDir}/post-create/request-fields.adoc[]
+
+=== 응답
+
+include::{snippetsDir}/post-create/http-response.adoc[]
+
+=== 응답 필드
+
+include::{snippetsDir}/post-create/response-fields.adoc[]
+
+=== CURL
+
+include::{snippetsDir}/post-create/curl-request.adoc[]
