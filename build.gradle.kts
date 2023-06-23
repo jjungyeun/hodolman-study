@@ -15,6 +15,9 @@ plugins {
     kotlin("plugin.jpa") version "1.8.21"
     kotlin("kapt") version "1.7.21"
     idea
+
+    // Spring Rest Docs
+    id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
 group = "com.wonjung"
@@ -34,6 +37,10 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+    // Spring Rest Docs
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("org.springframework.restdocs:spring-restdocs-asciidoctor")
+
     // for Querydsl
     implementation("com.infobip:infobip-spring-data-jpa-querydsl-boot-starter:8.0.0")
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
@@ -48,6 +55,33 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Spring Rest Docs
+tasks {
+    val snippetsDir by extra { file("$buildDir/generated-snippets") }
+
+    test {
+        outputs.dir(snippetsDir)
+    }
+
+    asciidoctor {
+        inputs.dir(snippetsDir)
+        dependsOn(test)
+        doFirst {
+            delete(file("src/main/resources/static/docs"))
+        }
+        doLast {
+            copy {
+                from("$buildDir/docs/asciidoc")
+                into("src/main/resources/static/docs")
+            }
+        }
+    }
+
+    build {
+        dependsOn(asciidoctor)
+    }
 }
 
 // for Querydsl
