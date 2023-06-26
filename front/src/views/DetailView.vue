@@ -28,8 +28,31 @@ axios.get(`/be-api/posts/${props.postId}`)
 
 </script>
 <template>
-  <h2>{{post.title}}</h2>
-  <div>{{post.content}}</div>
+  <h2 class="title">{{post.title}}</h2>
+  <div class="content">{{post.content}}</div>
 
-  <el-button class="mt-5" type="warning" @click="moveToEdit()">수정하기</el-button>
+  <div class="mt-5 d-flex justify-content-end">
+    <el-button type="text" @click="moveToEdit()">수정하기</el-button>
+  </div>
 </template>
+
+<style scoped lang="scss">
+h2 {
+  margin-bottom: 0;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #383838;
+}
+
+.content {
+  font-size: 0.95rem;
+  margin-top: 12px;
+  color: #727272;
+  word-break: break-all;
+  white-space: break-spaces;
+  line-height: 1.5;
+}
+</style>
