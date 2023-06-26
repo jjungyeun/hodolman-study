@@ -2,6 +2,8 @@
 
 import {ref} from "vue";
 import axios from 'axios';
+import {useRouter} from "vue-router";
+const router = useRouter();
 
 const title = ref("")
 const content = ref("")
@@ -10,6 +12,8 @@ const write = function () {
   axios.post("/be-api/posts", {
     title: title.value,
     content: content.value
+  }).then(() => {
+    router.replace({name: "home"})
   })
 }
 
