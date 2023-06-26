@@ -18,6 +18,12 @@ const router = createRouter({
       name: 'detail',
       component: () => import('@/views/DetailView.vue'),
       props: true
+    },
+    {
+      path: '/edit/:postId',
+      name: 'edit',
+      component: () => import('@/views/EditView.vue'),
+      props: true
     }
   ]
 })
