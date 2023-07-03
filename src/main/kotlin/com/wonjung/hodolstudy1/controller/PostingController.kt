@@ -35,11 +35,6 @@ class PostingController(
 
     val log = logger()
 
-    @GetMapping("/test")
-    fun test(userSession: UserSession): String? {
-        return "Login with ${userSession.id}"
-    }
-
     @PostMapping
     fun post(
         @RequestBody @Valid createDto: PostingCreateDto

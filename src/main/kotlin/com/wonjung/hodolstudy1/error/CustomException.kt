@@ -16,3 +16,7 @@ class PostNotFoundException(
 class UnAuthorizedException(): CustomException(
     errorCode = ErrorCode.UNAUTHORIZED
 )
+
+class InvalidSignInException: CustomException(
+    errorCode = ErrorCode.INVALID_SIGN_IN
+)
