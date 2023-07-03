@@ -2,6 +2,7 @@ package com.wonjung.hodolstudy1.controller
 
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
+import com.wonjung.hodolstudy1.dto.req.UserSession
 import com.wonjung.hodolstudy1.dto.res.CreateResponseDto
 import com.wonjung.hodolstudy1.dto.res.DeleteResponseDto
 import com.wonjung.hodolstudy1.dto.res.PostResponseDto
@@ -35,8 +36,8 @@ class PostingController(
     val log = logger()
 
     @GetMapping("/test")
-    fun test(@RequestAttribute("userName") userName: String?): String? {
-        return userName
+    fun test(userSession: UserSession): String? {
+        return "Hello"
     }
 
     @PostMapping
