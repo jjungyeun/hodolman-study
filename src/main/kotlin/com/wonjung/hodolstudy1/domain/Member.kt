@@ -29,5 +29,13 @@ class Member(
     var name: String = name
         private set
 
+    @OneToMany(mappedBy = "member", cascade = [CascadeType.ALL])
+    val sessions: MutableList<MemberSession> = mutableListOf()
+
+    fun addSession(): String {
+        val session = MemberSession(this)
+        this.sessions.add(session)
+        return session.token
+    }
 
 }
