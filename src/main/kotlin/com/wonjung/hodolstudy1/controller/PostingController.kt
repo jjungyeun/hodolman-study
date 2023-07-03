@@ -37,7 +37,7 @@ class PostingController(
 
     @GetMapping("/test")
     fun test(userSession: UserSession): String? {
-        return "Hello"
+        return "Login with ${userSession.id}"
     }
 
     @PostMapping

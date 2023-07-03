@@ -22,10 +22,10 @@ class AuthResolver: HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
-        val accessToken: String? = webRequest.getParameter("accessToken")
-        if (accessToken.isNullOrBlank()){
+        val accessToken: String? = webRequest.getHeader("Authorization")
+        if (accessToken == null || accessToken.toLongOrNull() == null){
             throw UnAuthorizedException()
         }
-        return UserSession(accessToken)
+        return UserSession(accessToken.toLong())
     }
 }
