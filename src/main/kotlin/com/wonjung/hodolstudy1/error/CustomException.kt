@@ -11,5 +11,8 @@ class PostNotFoundException(
     val postId: Long
 ): CustomException(
     errorCode = ErrorCode.POST_NOT_EXIST,
-    msg = "post_id: $postId") {
-}
+    msg = "post_id: $postId")
+
+class UnAuthorizedException(): CustomException(
+    errorCode = ErrorCode.UNAUTHORIZED
+)

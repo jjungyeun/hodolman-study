@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -32,6 +33,11 @@ class PostingController(
 ) {
 
     val log = logger()
+
+    @GetMapping("/test")
+    fun test(@RequestAttribute("userName") userName: String?): String? {
+        return userName
+    }
 
     @PostMapping
     fun post(
