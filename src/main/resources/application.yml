@@ -13,3 +13,6 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+
+hodol:
+  jwt-secret-key: 99P3rWmjtAzOK5INIovgto7OSAvug1g3rg+I1s8I0qY=
