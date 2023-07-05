@@ -1,12 +1,15 @@
 package com.wonjung.hodolstudy1.config
 
+import com.wonjung.hodolstudy1.repository.MemberSessionRepository
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfig: WebMvcConfigurer {
+class WebConfig(
+    val sessionRepository: MemberSessionRepository
+): WebMvcConfigurer {
 
 //     // 서버에서 CORS 해결하는 코드
 //    override fun addCorsMappings(registry: CorsRegistry) {
@@ -20,6 +23,6 @@ class WebConfig: WebMvcConfigurer {
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        resolvers.add(AuthResolver())
+        resolvers.add(AuthResolver(sessionRepository))
     }
 }

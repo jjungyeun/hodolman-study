@@ -55,4 +55,38 @@ class AuthControllerTest(
 
     }
 
+    @Test
+    @DisplayName("로그인 후 권한이 필요한 페이지에 접속할 수 있다")
+    fun authorized_test() {
+        // given
+        val member = Member(email = "wjyddd@naver.com", password = "1234", name = "원정연")
+        val token = member.addSession()
+        memberRepository.save(member)
+
+        // when & then
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/posts/foo")
+                .header("Authorization", token)
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    @DisplayName("로그인 후 검증되지 않은 세션값으로 권한이 필요한 페이지에 접속할 수 없다")
+    fun unauthorized_test() {
+        // given
+        val member = Member(email = "wjyddd@naver.com", password = "1234", name = "원정연")
+        val token = member.addSession()
+        memberRepository.save(member)
+
+        // when & then
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/posts/foo")
+                .header("Authorization", token+"hello")
+        )
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized)
+            .andDo(MockMvcResultHandlers.print())
+    }
+
 }

@@ -35,6 +35,12 @@ class PostingController(
 
     val log = logger()
 
+    @GetMapping("/foo")
+    fun foo(userSession: UserSession): Long {
+        log.info("memberId: ${userSession.id}")
+        return userSession.id!!
+    }
+
     @PostMapping
     fun post(
         @RequestBody @Valid createDto: PostingCreateDto
