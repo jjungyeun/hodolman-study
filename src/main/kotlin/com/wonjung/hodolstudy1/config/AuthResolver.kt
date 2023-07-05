@@ -3,6 +3,7 @@ package com.wonjung.hodolstudy1.config
 import com.wonjung.hodolstudy1.dto.req.UserSession
 import com.wonjung.hodolstudy1.error.UnAuthorizedException
 import com.wonjung.hodolstudy1.repository.MemberSessionRepository
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
@@ -25,8 +26,15 @@ class AuthResolver(
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
     ): Any? {
-        val accessToken: String? = webRequest.getHeader("Authorization")
-        if (accessToken.isNullOrEmpty()){
+        val servletRequest = webRequest.getNativeRequest(HttpServletRequest::class.java)
+            ?: throw UnAuthorizedException()
+
+        val cookie = servletRequest.cookies
+            .findLast { it.name == "SESSION" }
+            ?: throw UnAuthorizedException()
+
+        val accessToken = cookie.value
+        if (accessToken.isNullOrEmpty()) {
             throw UnAuthorizedException()
         }
 

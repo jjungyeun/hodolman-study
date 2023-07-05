@@ -5,6 +5,7 @@ import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.dto.req.LoginDto
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.MemberSessionRepository
+import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -48,7 +49,6 @@ class AuthControllerTest(
                 .content(objectMapper.writeValueAsString(requestDto))
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").isNotEmpty)
             .andDo(MockMvcResultHandlers.print())
 
         assertEquals(1, sessionRepository.findAllByMember(member).size)
@@ -66,7 +66,7 @@ class AuthControllerTest(
         // when & then
         mockMvc.perform(
             MockMvcRequestBuilders.get("/posts/foo")
-                .header("Authorization", token)
+                .cookie(Cookie("SESSION", token))
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andDo(MockMvcResultHandlers.print())
@@ -83,7 +83,7 @@ class AuthControllerTest(
         // when & then
         mockMvc.perform(
             MockMvcRequestBuilders.get("/posts/foo")
-                .header("Authorization", token+"hello")
+                .cookie(Cookie("SESSION", token+"hello"))
         )
             .andExpect(MockMvcResultMatchers.status().isUnauthorized)
             .andDo(MockMvcResultHandlers.print())
