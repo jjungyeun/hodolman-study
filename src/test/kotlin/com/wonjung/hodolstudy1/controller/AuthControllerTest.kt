@@ -3,6 +3,7 @@ package com.wonjung.hodolstudy1.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.dto.req.LoginDto
+import com.wonjung.hodolstudy1.dto.req.SignupDto
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.MemberSessionRepository
 import io.jsonwebtoken.Jwts
@@ -94,6 +95,25 @@ class AuthControllerTest(
         )
             .andExpect(MockMvcResultMatchers.status().isUnauthorized)
             .andDo(MockMvcResultHandlers.print())
+    }
+
+    @Test
+    @DisplayName("회원가입 테스트")
+    fun signup_test() {
+        // given
+        val requestDto = SignupDto(email = "hello@google.com", name = "안녕", password = "1234")
+
+        // when
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/auth/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+        )
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andDo(MockMvcResultHandlers.print())
+
+        // then
+        assertEquals(1, memberRepository.count())
     }
 
     private fun createJwtToken(sessionId: String): String {

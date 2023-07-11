@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.controller
 
-import com.wonjung.hodolstudy1.dto.req.LoginDto
+import com.wonjung.hodolstudy1.dto.req.*
+import com.wonjung.hodolstudy1.dto.res.CreateResponseDto
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.service.AuthService
 import com.wonjung.hodolstudy1.util.AuthUtil
@@ -32,6 +33,13 @@ class AuthController(
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
             .build()
+    }
+
+    @PostMapping("/signup")
+    fun signup(@RequestBody signupDto: SignupDto): ResponseEntity<CreateResponseDto> {
+        val memberId = authService.signup(signupDto)
+        return ResponseEntity.ok()
+            .body(CreateResponseDto(created = memberId))
     }
 
     private fun createCookieWithJwt(jwts: String): ResponseCookie {
