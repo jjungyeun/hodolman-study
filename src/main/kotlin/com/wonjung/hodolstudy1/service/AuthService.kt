@@ -6,13 +6,16 @@ import com.wonjung.hodolstudy1.dto.req.SignupDto
 import com.wonjung.hodolstudy1.error.DuplicatedEmailException
 import com.wonjung.hodolstudy1.error.InvalidSignInException
 import com.wonjung.hodolstudy1.repository.MemberRepository
+import com.wonjung.hodolstudy1.util.AuthUtil
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
 class AuthService(
-    val memberRepository: MemberRepository
+    val memberRepository: MemberRepository,
+    val authUtil: AuthUtil
 ) {
 
     @Transactional
@@ -28,9 +31,9 @@ class AuthService(
             .ifPresent { throw DuplicatedEmailException() }
 
         val newMember = Member(
-            email = signupDto.email!!,
+            email = signupDto.email,
             name = signupDto.name!!,
-            password = signupDto.password!!
+            password = authUtil.encodePassword(signupDto.password!!)
         )
         memberRepository.save(newMember)
         return newMember.id

@@ -37,7 +37,7 @@ class AuthServiceTest(
             .orElseThrow { MemberNotFoundException(createdId) }
         assertEquals(signupDto.email, foundMember.email)
         assertEquals(signupDto.name, foundMember.name)
-        assertEquals(signupDto.password, foundMember.password)
+        assertNotEquals(signupDto.password, foundMember.password)
     }
 
     @Test

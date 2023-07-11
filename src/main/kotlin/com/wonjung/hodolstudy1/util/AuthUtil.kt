@@ -3,6 +3,7 @@ package com.wonjung.hodolstudy1.util
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -18,5 +19,10 @@ class AuthUtil(
             .signWith(jwtSecretKey)
             .setIssuedAt(Date())
             .compact()
+    }
+
+    fun encodePassword(originalPassword: String): String {
+        val encoder = SCryptPasswordEncoder(16, 8, 1, 32, 64)
+        return encoder.encode(originalPassword)
     }
 }
