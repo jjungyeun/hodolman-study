@@ -3,10 +3,8 @@ package com.wonjung.hodolstudy1.controller
 import com.wonjung.hodolstudy1.dto.req.LoginDto
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.service.AuthService
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
+import com.wonjung.hodolstudy1.util.AuthUtil
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
@@ -21,7 +19,7 @@ import java.util.*
 @RequestMapping("/auth")
 class AuthController(
     val authService: AuthService,
-    @Value("\${hodol.jwt-secret-key}") var jwtSecretKeyString: String
+    val authUtil: AuthUtil
 ) {
 
     val log = logger()
@@ -29,21 +27,11 @@ class AuthController(
     @PostMapping("/login")
     fun login(@RequestBody @Valid loginInfo: LoginDto): ResponseEntity<ResponseCookie> {
         val sessionId = authService.signin(loginInfo)
-        val jwts = createJwtToken(sessionId)
-        val responseCookie = createCookieWithJwt(jwts)
+        val jwtToken = authUtil.createJwtToken(sessionId)
+        val responseCookie = createCookieWithJwt(jwtToken)
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
             .build()
-    }
-
-    private fun createJwtToken(sessionId: String): String {
-        val decodedKey = Base64.getDecoder().decode(jwtSecretKeyString)
-        val jwtSecretKey = Keys.hmacShaKeyFor(decodedKey)
-        return Jwts.builder()
-            .setSubject(sessionId)
-            .signWith(jwtSecretKey)
-            .setIssuedAt(Date())
-            .compact()
     }
 
     private fun createCookieWithJwt(jwts: String): ResponseCookie {
