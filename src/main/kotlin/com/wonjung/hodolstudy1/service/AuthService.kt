@@ -20,8 +20,12 @@ class AuthService(
 
     @Transactional
     fun signin(loginDto: LoginDto): String {
-        val member = memberRepository.findByEmailAndPassword(loginDto.email!!, loginDto.password!!)
+        val member = memberRepository.findByEmail(loginDto.email!!)
             .orElseThrow { InvalidSignInException() }
+
+        if (!authUtil.matchPassword(loginDto.password!!, member.password))
+            throw InvalidSignInException()
+
         return member.addSession()
     }
 

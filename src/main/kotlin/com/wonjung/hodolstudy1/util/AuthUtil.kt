@@ -11,6 +11,9 @@ import java.util.*
 class AuthUtil(
     @Value("\${hodol.jwt-secret-key}") var jwtSecretKeyString: String
 ) {
+
+    private val encoder = SCryptPasswordEncoder(16, 8, 1, 32, 64)
+
     fun createJwtToken(sessionId: String): String {
         val decodedKey = Base64.getDecoder().decode(jwtSecretKeyString)
         val jwtSecretKey = Keys.hmacShaKeyFor(decodedKey)
@@ -22,7 +25,10 @@ class AuthUtil(
     }
 
     fun encodePassword(originalPassword: String): String {
-        val encoder = SCryptPasswordEncoder(16, 8, 1, 32, 64)
         return encoder.encode(originalPassword)
+    }
+
+    fun matchPassword(signinPassword: String, encryptedPassword: String): Boolean {
+        return encoder.matches(signinPassword, encryptedPassword)
     }
 }

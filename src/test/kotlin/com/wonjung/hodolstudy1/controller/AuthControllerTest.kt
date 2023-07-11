@@ -6,6 +6,7 @@ import com.wonjung.hodolstudy1.dto.req.LoginDto
 import com.wonjung.hodolstudy1.dto.req.SignupDto
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.MemberSessionRepository
+import com.wonjung.hodolstudy1.util.AuthUtil
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie
@@ -31,7 +32,7 @@ class AuthControllerTest(
     @Autowired val objectMapper: ObjectMapper,
     @Autowired val memberRepository: MemberRepository,
     @Autowired val sessionRepository: MemberSessionRepository,
-    @Value("\${hodol.jwt-secret-key}") var jwtSecretKeyString: String
+    @Autowired val authUtil: AuthUtil
 ){
 
     @BeforeEach // 각 테스트 메소드가 실행되기 전에 실행되는 메소드
@@ -44,11 +45,15 @@ class AuthControllerTest(
     @DisplayName("로그인 성공 시 세션 생성")
     fun login_test() {
         // given
-        val member = Member(email = "wjyddd@naver.com", password = "1234", name = "원정연")
-        memberRepository.save(member)
+        val member = memberRepository.save(
+            Member(
+                email = "wjyddd@naver.com",
+                password = authUtil.encodePassword("1234"),
+                name = "원정연")
+        )
 
         // when & then
-        val requestDto = LoginDto(email = member.email, password = member.password)
+        val requestDto = LoginDto(email = member.email, password = "1234")
         mockMvc.perform(
             MockMvcRequestBuilders.post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,10 +70,13 @@ class AuthControllerTest(
     @DisplayName("로그인 후 권한이 필요한 페이지에 접속할 수 있다")
     fun authorized_test() {
         // given
-        val member = Member(email = "wjyddd@naver.com", password = "1234", name = "원정연")
+        val member = Member(
+            email = "wjyddd@naver.com",
+            password = authUtil.encodePassword("1234"),
+            name = "원정연")
         val sessionId = member.addSession()
         memberRepository.save(member)
-        val jwtToken = createJwtToken(sessionId)
+        val jwtToken = authUtil.createJwtToken(sessionId)
 
         // when & then
         mockMvc.perform(
@@ -83,10 +91,13 @@ class AuthControllerTest(
     @DisplayName("로그인 후 검증되지 않은 세션값으로 권한이 필요한 페이지에 접속할 수 없다")
     fun unauthorized_test() {
         // given
-        val member = Member(email = "wjyddd@naver.com", password = "1234", name = "원정연")
+        val member = Member(
+            email = "wjyddd@naver.com",
+            password = authUtil.encodePassword("1234"),
+            name = "원정연")
         val sessionId = member.addSession()
         memberRepository.save(member)
-        val jwtToken = createJwtToken(sessionId + "A")
+        val jwtToken = authUtil.createJwtToken(sessionId + "A")
 
         // when & then
         mockMvc.perform(
@@ -114,16 +125,6 @@ class AuthControllerTest(
 
         // then
         assertEquals(1, memberRepository.count())
-    }
-
-    private fun createJwtToken(sessionId: String): String {
-        val decodedKey = Base64.getDecoder().decode(jwtSecretKeyString)
-        val jwtSecretKey = Keys.hmacShaKeyFor(decodedKey)
-        return Jwts.builder()
-            .setSubject(sessionId)
-            .signWith(jwtSecretKey)
-            .setIssuedAt(Date())
-            .compact()
     }
 
 }
