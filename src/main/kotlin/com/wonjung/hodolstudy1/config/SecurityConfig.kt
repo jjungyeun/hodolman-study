@@ -1,18 +1,15 @@
 package com.wonjung.hodolstudy1.config
 
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 
 @Configuration
@@ -48,6 +45,11 @@ class SecurityConfig {
                     .defaultSuccessUrl("/")             // 로그인 성공 시 이동할 url
             }
             .userDetailsService(userDetailsService())
+            .rememberMe {   // 자동로그인 관련 설정
+                it.rememberMeParameter("remember")
+                    .alwaysRemember(false)
+                    .tokenValiditySeconds(3600*24*30)                 // 얼마동안 유효하게 할건지
+            }
         return http.build()
     }
 
