@@ -13,3 +13,7 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+
+  session:
+    jdbc:
+      initialize-schema: always

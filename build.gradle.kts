@@ -55,6 +55,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-test")
+    implementation("org.springframework.session:spring-session-jdbc")
 }
 
 tasks.withType<KotlinCompile> {
