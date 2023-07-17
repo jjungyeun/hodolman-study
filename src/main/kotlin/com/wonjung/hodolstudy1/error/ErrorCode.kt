@@ -1,5 +1,6 @@
 package com.wonjung.hodolstudy1.error
 
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(
@@ -15,4 +16,5 @@ enum class ErrorCode(
 
     INVALID_SIGN_IN(HttpStatus.BAD_REQUEST, "아이디/비밀번호가 올바르지 않습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 }

@@ -23,6 +23,10 @@ class UnAuthorizedException(): CustomException(
     errorCode = ErrorCode.UNAUTHORIZED
 )
 
+class ForbiddenException(): CustomException(
+    errorCode = ErrorCode.FORBIDDEN
+)
+
 class InvalidSignInException: CustomException(
     errorCode = ErrorCode.INVALID_SIGN_IN
 )

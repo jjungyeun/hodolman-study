@@ -1,7 +1,10 @@
 package com.wonjung.hodolstudy1.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.domain.Member
-import com.wonjung.hodolstudy1.error.MemberNotFoundException
+import com.wonjung.hodolstudy1.error.Http401Handler
+import com.wonjung.hodolstudy1.error.Http403Handler
+import com.wonjung.hodolstudy1.error.LoginFailHandler
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.stereotype.Service
 
@@ -34,7 +36,10 @@ class SecurityConfig {
 //    }
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
+    fun securityFilterChain(
+        http: HttpSecurity,
+        objectMapper: ObjectMapper
+    ): SecurityFilterChain? {
         http
             .csrf {
                 it.disable()    // CSRF 설정 비활성화
@@ -43,6 +48,8 @@ class SecurityConfig {
                 it
                     .requestMatchers("/favicon.ico", "/error", "h2-console/**").permitAll()
                     .requestMatchers("/auth/signup", "/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
+                    .requestMatchers("/member").hasAnyRole("ADMIN", "MEMBER")   // MEMBER 권한이 있어야 접근 가능
+                    .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
                     .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
             }
             .formLogin {
@@ -51,12 +58,18 @@ class SecurityConfig {
                     .usernameParameter("username")      // username 관련 파라미터 이름
                     .passwordParameter("password")      // password 관련 파라미터 이름
                     .defaultSuccessUrl("/")             // 로그인 성공 시 이동할 url
+                    .failureHandler(LoginFailHandler(objectMapper))
             }
 //            .userDetailsService(userDetailsService()) // 빈으로 등록하면 자동으로 등록됨
             .rememberMe {   // 자동로그인 관련 설정
                 it.rememberMeParameter("remember")
                     .alwaysRemember(false)
                     .tokenValiditySeconds(3600*24*30)                 // 얼마동안 유효하게 할건지
+            }
+
+            .exceptionHandling {
+                it.accessDeniedHandler(Http403Handler(objectMapper))
+                    .authenticationEntryPoint(Http401Handler(objectMapper))
             }
         return http.build()
     }
@@ -85,5 +98,10 @@ class CustomUserDetails(
     username: String, password: String, authorities: Collection<GrantedAuthority>
 ): User(username, password, authorities) {
 
-    constructor(member: Member) : this(member.id, member.email, member.password, listOf(SimpleGrantedAuthority("ADMIN")))
+    constructor(member: Member) : this(
+        member.id,
+        member.email,
+        member.password,
+        listOf(SimpleGrantedAuthority("ROLE_MEMBER") // Authority 이름에 "ROLE_" prefix를 붙이면 역할로 인식
+        ))
 }
