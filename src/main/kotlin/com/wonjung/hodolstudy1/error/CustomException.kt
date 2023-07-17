@@ -14,10 +14,10 @@ class PostNotFoundException(
     msg = "post_id: $postId")
 
 class MemberNotFoundException(
-    val memberId: Long
+    memberId: Long? = null
 ): CustomException(
     errorCode = ErrorCode.MEMBER_NOT_EXIST,
-    msg = "member_id: $memberId")
+    msg = if (memberId == null) "" else "member_id: $memberId")
 
 class UnAuthorizedException(): CustomException(
     errorCode = ErrorCode.UNAUTHORIZED

@@ -1,15 +1,23 @@
 package com.wonjung.hodolstudy1.config
 
+import com.wonjung.hodolstudy1.domain.Member
+import com.wonjung.hodolstudy1.error.MemberNotFoundException
+import com.wonjung.hodolstudy1.repository.MemberRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.stereotype.Service
 
 
 @Configuration
@@ -34,7 +42,7 @@ class SecurityConfig {
             .authorizeHttpRequests {
                 it
                     .requestMatchers("/favicon.ico", "/error", "h2-console/**").permitAll()
-                    .requestMatchers("/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
+                    .requestMatchers("/auth/signup", "/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
                     .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
             }
             .formLogin {
@@ -44,7 +52,7 @@ class SecurityConfig {
                     .passwordParameter("password")      // password 관련 파라미터 이름
                     .defaultSuccessUrl("/")             // 로그인 성공 시 이동할 url
             }
-            .userDetailsService(userDetailsService())
+//            .userDetailsService(userDetailsService()) // 빈으로 등록하면 자동으로 등록됨
             .rememberMe {   // 자동로그인 관련 설정
                 it.rememberMeParameter("remember")
                     .alwaysRemember(false)
@@ -54,18 +62,28 @@ class SecurityConfig {
     }
 
     @Bean
-    fun userDetailsService(): UserDetailsService {
-        val userDetailsManager = InMemoryUserDetailsManager()
-        val user = User.withUsername("hello")
-            .password(passwordEncoder().encode("1234"))
-            .roles("ADMIN")
-            .build()
-        userDetailsManager.createUser(user)
-        return userDetailsManager
-    }
-
-    @Bean
     fun passwordEncoder(): PasswordEncoder {
         return SCryptPasswordEncoder(16, 8, 1, 32, 64)
     }
+}
+
+@Service
+class CustomUserDetailsService(
+    val memberRepository: MemberRepository
+): UserDetailsService {
+    override fun loadUserByUsername(username: String): UserDetails {
+        val member = memberRepository.findByEmail(username)
+//            .orElseThrow { MemberNotFoundException() }
+            .orElseThrow { UsernameNotFoundException("${username}을 찾을 수 없습니다.") }
+        return CustomUserDetails(member)
+    }
+
+}
+
+class CustomUserDetails(
+    val userId: Long,
+    username: String, password: String, authorities: Collection<GrantedAuthority>
+): User(username, password, authorities) {
+
+    constructor(member: Member) : this(member.id, member.email, member.password, listOf(SimpleGrantedAuthority("ADMIN")))
 }

@@ -4,6 +4,7 @@ import com.wonjung.hodolstudy1.dto.req.*
 import com.wonjung.hodolstudy1.dto.res.CreateResponseDto
 import com.wonjung.hodolstudy1.log.logger
 import com.wonjung.hodolstudy1.service.AuthService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,7 +26,7 @@ class AuthController(
     }
 
     @PostMapping("/signup")
-    fun signup(@RequestBody signupDto: SignupDto): ResponseEntity<CreateResponseDto> {
+    fun signup(@RequestBody @Valid signupDto: SignupDto): ResponseEntity<CreateResponseDto> {
         val memberId = authService.signup(signupDto)
         return ResponseEntity.ok()
             .body(CreateResponseDto(created = memberId))
