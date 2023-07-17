@@ -5,9 +5,13 @@ import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.error.Http401Handler
 import com.wonjung.hodolstudy1.error.Http403Handler
 import com.wonjung.hodolstudy1.error.LoginFailHandler
+import com.wonjung.hodolstudy1.filter.EmailPasswordAuthFilter
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.GrantedAuthority
@@ -19,12 +23,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices
 import org.springframework.stereotype.Service
 
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(
+    val objectMapper: ObjectMapper,
+    val memberRepository: MemberRepository
+) {
 
 //    @Bean
 //    fun webSecurityCustomizer(): WebSecurityCustomizer {
@@ -37,8 +48,7 @@ class SecurityConfig {
 
     @Bean
     fun securityFilterChain(
-        http: HttpSecurity,
-        objectMapper: ObjectMapper
+        http: HttpSecurity
     ): SecurityFilterChain? {
         http
             .csrf {
@@ -52,26 +62,51 @@ class SecurityConfig {
                     .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
                     .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
             }
-            .formLogin {
-                it.loginPage("/login-page")             // 로그인 폼 페이지
-                    .loginProcessingUrl("/auth/login")  // 로그인을 처리하는 서버 url
-                    .usernameParameter("username")      // username 관련 파라미터 이름
-                    .passwordParameter("password")      // password 관련 파라미터 이름
-                    .defaultSuccessUrl("/")             // 로그인 성공 시 이동할 url
-                    .failureHandler(LoginFailHandler(objectMapper))
-            }
+            .addFilterBefore(usernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+//            .formLogin {
+//                it.loginPage("/login-page")             // 로그인 폼 페이지
+//                    .loginProcessingUrl("/auth/login")  // 로그인을 처리하는 서버 url
+//                    .usernameParameter("username")      // username 관련 파라미터 이름
+//                    .passwordParameter("password")      // password 관련 파라미터 이름
+//                    .defaultSuccessUrl("/")             // 로그인 성공 시 이동할 url
+//                    .failureHandler(LoginFailHandler(objectMapper))
+//            }
 //            .userDetailsService(userDetailsService()) // 빈으로 등록하면 자동으로 등록됨
-            .rememberMe {   // 자동로그인 관련 설정
-                it.rememberMeParameter("remember")
-                    .alwaysRemember(false)
-                    .tokenValiditySeconds(3600*24*30)                 // 얼마동안 유효하게 할건지
-            }
+//            .rememberMe {   // 자동로그인 관련 설정
+//                it.rememberMeParameter("remember")
+//                    .alwaysRemember(false)
+//                    .tokenValiditySeconds(3600*24*30)                 // 얼마동안 유효하게 할건지
+//            }
 
             .exceptionHandling {
                 it.accessDeniedHandler(Http403Handler(objectMapper))
                     .authenticationEntryPoint(Http401Handler(objectMapper))
             }
         return http.build()
+    }
+
+    @Bean
+    fun usernamePasswordAuthenticationFilter(): EmailPasswordAuthFilter {
+        return EmailPasswordAuthFilter(objectMapper).apply {
+            this.setAuthenticationFailureHandler(LoginFailHandler(objectMapper))
+            this.setAuthenticationSuccessHandler(SimpleUrlAuthenticationSuccessHandler("/"))
+            this.setSecurityContextRepository(HttpSessionSecurityContextRepository())
+            this.setAuthenticationManager(authenticationManager())
+//            this.rememberMeServices = SpringSessionRememberMeServices().apply { // 동작 X
+//                this.setValiditySeconds(3600 * 24 * 14)
+//                this.setAlwaysRemember(false)
+//                this.setRememberMeParameterName("remember")
+//            }
+        }
+    }
+
+    @Bean
+    fun authenticationManager(): AuthenticationManager {
+        val provider = DaoAuthenticationProvider().apply {
+            this.setUserDetailsService(CustomUserDetailsService(memberRepository))
+            this.setPasswordEncoder(passwordEncoder())
+        }
+        return ProviderManager(provider)
     }
 
     @Bean
