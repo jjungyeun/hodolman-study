@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.domain.Sort.Direction.*
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -35,12 +36,7 @@ class PostingController(
 
     val log = logger()
 
-    @GetMapping("/foo")
-    fun foo(userSession: UserSession): Long {
-        log.info("memberId: ${userSession.id}")
-        return userSession.id!!
-    }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     fun post(
         @RequestBody @Valid createDto: PostingCreateDto
@@ -68,6 +64,7 @@ class PostingController(
             .body(responseDtos)
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PatchMapping("/{postId}")
     fun editPost(@PathVariable postId: Long,
                  @RequestBody editDto: PostingEditDto
@@ -77,6 +74,7 @@ class PostingController(
             .body(responseDto)
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{postId}")
     fun deletePost(@PathVariable postId: Long): ResponseEntity<DeleteResponseDto> {
         postingService.deletePost(postId)

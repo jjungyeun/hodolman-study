@@ -20,11 +20,6 @@ class AuthController(
 
     val log = logger()
 
-    @PostMapping("/login")
-    fun login(): String {
-        return "로그인 페이지"
-    }
-
     @PostMapping("/signup")
     fun signup(@RequestBody @Valid signupDto: SignupDto): ResponseEntity<CreateResponseDto> {
         val memberId = authService.signup(signupDto)

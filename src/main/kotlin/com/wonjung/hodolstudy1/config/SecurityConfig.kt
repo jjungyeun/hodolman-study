@@ -2,10 +2,11 @@ package com.wonjung.hodolstudy1.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.domain.Member
-import com.wonjung.hodolstudy1.error.Http401Handler
-import com.wonjung.hodolstudy1.error.Http403Handler
-import com.wonjung.hodolstudy1.error.LoginFailHandler
+import com.wonjung.hodolstudy1.handler.Http401Handler
+import com.wonjung.hodolstudy1.handler.Http403Handler
+import com.wonjung.hodolstudy1.handler.LoginFailHandler
 import com.wonjung.hodolstudy1.filter.EmailPasswordAuthFilter
+import com.wonjung.hodolstudy1.handler.LoginSuccessHandler
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -27,7 +28,6 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
-import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices
 import org.springframework.stereotype.Service
 
 
@@ -58,11 +58,12 @@ class SecurityConfig(
             }
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/favicon.ico", "/error", "h2-console/**").permitAll()
-                    .requestMatchers("/auth/signup", "/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
-//                    .requestMatchers("/member").hasAnyRole("ADMIN", "MEMBER")   // MEMBER 권한이 있어야 접근 가능
-//                    .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
-                    .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
+//                    .requestMatchers("/favicon.ico", "/error", "h2-console/**").permitAll()
+//                    .requestMatchers("/auth/signup", "/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
+////                    .requestMatchers("/member").hasAnyRole("ADMIN", "MEMBER")   // MEMBER 권한이 있어야 접근 가능
+////                    .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
+//                    .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
+                    .anyRequest().permitAll()   // 블로그 기능에 적용하기 위해 일단 모두 허용
             }
             .addFilterBefore(usernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
 //            .formLogin {
@@ -91,7 +92,7 @@ class SecurityConfig(
     fun usernamePasswordAuthenticationFilter(): EmailPasswordAuthFilter {
         return EmailPasswordAuthFilter(objectMapper).apply {
             this.setAuthenticationFailureHandler(LoginFailHandler(objectMapper))
-            this.setAuthenticationSuccessHandler(SimpleUrlAuthenticationSuccessHandler("/"))
+            this.setAuthenticationSuccessHandler(LoginSuccessHandler(objectMapper))
             this.setSecurityContextRepository(HttpSessionSecurityContextRepository())
             this.setAuthenticationManager(authenticationManager())
 //            this.rememberMeServices = SpringSessionRememberMeServices().apply { // 동작 X
@@ -139,6 +140,6 @@ class CustomUserDetails(
         member.id,
         member.email,
         member.password,
-        listOf(SimpleGrantedAuthority("ROLE_MEMBER") // Authority 이름에 "ROLE_" prefix를 붙이면 역할로 인식
+        listOf(SimpleGrantedAuthority("ROLE_ADMIN") // Authority 이름에 "ROLE_" prefix를 붙이면 역할로 인식
         ))
 }
