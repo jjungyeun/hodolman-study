@@ -1,14 +1,18 @@
 package com.wonjung.hodolstudy1.error
 
 import com.wonjung.hodolstudy1.dto.res.ErrorResponseDto
+import com.wonjung.hodolstudy1.log.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalControllerExceptionHandler {
+
+    val log = logger()
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponseDto> {
@@ -27,6 +31,19 @@ class GlobalControllerExceptionHandler {
             .body(errorResponseDto)
     }
 
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(ex: AccessDeniedException): ResponseEntity<ErrorResponseDto> {
+        val errorCode = ErrorCode.FORBIDDEN
+        return ResponseEntity
+            .status(errorCode.status.value())
+            .body(ErrorResponseDto(
+                    status = errorCode.status.value(),
+                    errorCode = errorCode.toString(),
+                    message = ex.message
+                )
+            )
+    }
+
     @ExceptionHandler(CustomException::class)
     fun handleCustomException(ex: CustomException): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity
@@ -41,6 +58,7 @@ class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): ResponseEntity<ErrorResponseDto> {
+        log.error(ex.stackTraceToString())
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponseDto(

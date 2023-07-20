@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.GrantedAuthority
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity()
 class SecurityConfig(
     val objectMapper: ObjectMapper,
     val memberRepository: MemberRepository
@@ -58,8 +60,8 @@ class SecurityConfig(
                 it
                     .requestMatchers("/favicon.ico", "/error", "h2-console/**").permitAll()
                     .requestMatchers("/auth/signup", "/auth/login", "/login-page").permitAll()    // 로그인 관련 경로는 모두 접근 가능하도록 설정
-                    .requestMatchers("/member").hasAnyRole("ADMIN", "MEMBER")   // MEMBER 권한이 있어야 접근 가능
-                    .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
+//                    .requestMatchers("/member").hasAnyRole("ADMIN", "MEMBER")   // MEMBER 권한이 있어야 접근 가능
+//                    .requestMatchers("/admin").hasRole("ADMIN")   // ADMIN 권한이 있어야 접근 가능
                     .anyRequest().authenticated()                                   // 그 외 경로는 인증 받아야 함
             }
             .addFilterBefore(usernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
