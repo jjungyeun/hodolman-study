@@ -4,8 +4,10 @@ import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.res.PostResponseDto
+import com.wonjung.hodolstudy1.error.MemberNotFoundException
 import com.wonjung.hodolstudy1.error.PostNotFoundException
 import com.wonjung.hodolstudy1.log.logger
+import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,16 +17,20 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class PostingService(
-    val postRepository: PostRepository
+    val postRepository: PostRepository,
+    val memberRepository: MemberRepository
 ) {
     val log = logger()
 
     @Transactional
-    fun write(createDto: PostingCreateDto): Long {
+    fun write(memberId: Long, createDto: PostingCreateDto): Long {
         log.info("Write post (title: ${createDto.title}, content: ${createDto.content}).")
+        val member = memberRepository.findById(memberId)
+            .orElseThrow { MemberNotFoundException(memberId) }
         val post = Post(
             title = createDto.title!!,
-            content = createDto.content!!
+            content = createDto.content!!,
+            member = member
         )
         postRepository.save(post)
         return post.id

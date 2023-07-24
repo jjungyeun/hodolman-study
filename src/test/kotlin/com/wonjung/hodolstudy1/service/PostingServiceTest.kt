@@ -1,9 +1,12 @@
 package com.wonjung.hodolstudy1.service
 
+import com.wonjung.hodolstudy1.config.CustomUserDetails
+import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.error.PostNotFoundException
+import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -16,22 +19,30 @@ import org.springframework.data.domain.PageRequest
 @SpringBootTest
 class PostingServiceTest(
     @Autowired val postingService: PostingService,
-    @Autowired val postRepository: PostRepository
+    @Autowired val postRepository: PostRepository,
+    @Autowired val memberRepository: MemberRepository
 ) {
 
     @BeforeEach // 각 테스트 메소드가 실행되기 전에 실행되는 메소드
     fun tearDown() {
         postRepository.deleteAll()
+        memberRepository.deleteAll()
     }
 
     @Test
     @DisplayName("게시글을 저장한다.")
     fun write_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
         val createDto = PostingCreateDto(title = "제목", content = "내용임")
 
         // when
-        val createdId = postingService.write(createDto)
+        val createdId = postingService.write(member.id, createDto)
 
         // then
         val savedPost = postRepository.findAll()[0]
@@ -42,9 +53,17 @@ class PostingServiceTest(
     @DisplayName("게시글을 하나 조회한다.")
     fun get_one_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
-            title = "제목",
-            content = "내용"
+            title = "This is title",
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 
@@ -62,15 +81,23 @@ class PostingServiceTest(
     @DisplayName("게시글을 모두 조회한다.")
     fun get_all_posts() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
         val post1 = Post(
             title = "제목",
-            content = "내용"
+            content = "내용",
+            member = member
         )
         postRepository.save(post1)
 
         val post2 = Post(
             title = "제목2",
-            content = "내용2"
+            content = "내용2",
+            member = member
         )
         postRepository.save(post2)
 
@@ -91,10 +118,17 @@ class PostingServiceTest(
     @DisplayName("게시글 페이지를 조회한다.")
     fun get_posts_with_paging() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
         for (i in 1..30) {
             val post = Post(
                 title = "제목 $i",
-                content = "내용 $i"
+                content = "내용 $i",
+                member = member
             )
             postRepository.save(post)
         }
@@ -111,9 +145,17 @@ class PostingServiceTest(
     @DisplayName("게시글 제목을 수정한다.")
     fun edit_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
-            title = "제목",
-            content = "내용"
+            title = "This is title",
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 
@@ -135,9 +177,17 @@ class PostingServiceTest(
     @DisplayName("게시글을 삭제한다.")
     fun delete_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
-            title = "제목",
-            content = "내용"
+            title = "This is title",
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 
@@ -152,9 +202,17 @@ class PostingServiceTest(
     @DisplayName("게시글을 하나 조회하는데 실패한다.")
     fun get_one_post_and_no_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
-            title = "제목",
-            content = "내용"
+            title = "This is title",
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 
@@ -167,9 +225,17 @@ class PostingServiceTest(
     @DisplayName("게시글을 삭제하는 데 실패한다.")
     fun delete_post_and_no_post() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
-            title = "제목",
-            content = "내용"
+            title = "This is title",
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 

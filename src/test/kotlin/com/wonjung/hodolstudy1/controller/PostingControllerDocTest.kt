@@ -1,8 +1,10 @@
 package com.wonjung.hodolstudy1.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
+import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.PostRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
@@ -36,6 +38,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 class PostingControllerDocTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val postRepository: PostRepository,
+    @Autowired val memberRepository: MemberRepository,
     @Autowired val objectMapper: ObjectMapper
 ) {
 
@@ -43,9 +46,17 @@ class PostingControllerDocTest(
     @DisplayName("글 단건 조회")
     fun doc_test_1() {
         // given
+        val member = Member(
+            email = "hello@gmail.com",
+            password = "1234",
+            name = "hello"
+        )
+        memberRepository.save(member)
+
         val post = Post(
             title = "This is title",
-            content = "This is content~"
+            content = "This is content~",
+            member = member
         )
         postRepository.save(post)
 
