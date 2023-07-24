@@ -3,6 +3,7 @@ package com.wonjung.hodolstudy1.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.wonjung.hodolstudy1.dto.req.SignupDto
 import com.wonjung.hodolstudy1.repository.MemberRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -25,7 +26,7 @@ class AuthControllerTest(
     @Autowired val memberRepository: MemberRepository
 ){
 
-    @BeforeEach // 각 테스트 메소드가 실행되기 전에 실행되는 메소드
+    @AfterEach // 각 테스트 메소드가 실행된 후에 실행되는 메소드
     fun tearDown() {
         memberRepository.deleteAll()
     }
@@ -35,6 +36,7 @@ class AuthControllerTest(
     fun signup_test() {
         // given
         val requestDto = SignupDto(email = "hello@google.com", name = "안녕", password = "1234")
+        val beforeMemberCnt = memberRepository.count()
 
         // when
         mockMvc.perform(
@@ -46,7 +48,7 @@ class AuthControllerTest(
             .andDo(MockMvcResultHandlers.print())
 
         // then
-        assertEquals(1, memberRepository.count())
+        assertEquals(1, beforeMemberCnt+1)
     }
 
 }

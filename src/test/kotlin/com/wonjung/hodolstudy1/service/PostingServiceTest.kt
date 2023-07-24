@@ -8,6 +8,7 @@ import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.error.PostNotFoundException
 import com.wonjung.hodolstudy1.repository.MemberRepository
 import com.wonjung.hodolstudy1.repository.PostRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -23,7 +24,7 @@ class PostingServiceTest(
     @Autowired val memberRepository: MemberRepository
 ) {
 
-    @BeforeEach // 각 테스트 메소드가 실행되기 전에 실행되는 메소드
+    @AfterEach // 각 테스트 메소드가 실행된 후에 실행되는 메소드
     fun tearDown() {
         postRepository.deleteAll()
         memberRepository.deleteAll()

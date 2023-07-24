@@ -1,5 +1,6 @@
 package com.wonjung.hodolstudy1.controller
 
+import com.wonjung.hodolstudy1.config.CustomUserDetails
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
 import com.wonjung.hodolstudy1.dto.req.PostingEditDto
 import com.wonjung.hodolstudy1.dto.req.UserSession
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort.Direction.*
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -39,9 +41,10 @@ class PostingController(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping
     fun post(
+        @AuthenticationPrincipal userDetails: CustomUserDetails,
         @RequestBody @Valid createDto: PostingCreateDto
     ): ResponseEntity<CreateResponseDto> {
-        val createdId = postingService.write(createDto)
+        val createdId = postingService.write(userDetails.userId, createDto)
         return ResponseEntity.ok()
                 .body(CreateResponseDto(created = createdId))
     }
@@ -64,7 +67,7 @@ class PostingController(
             .body(responseDtos)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'UPDATE')")
     @PatchMapping("/{postId}")
     fun editPost(@PathVariable postId: Long,
                  @RequestBody editDto: PostingEditDto
@@ -74,7 +77,7 @@ class PostingController(
             .body(responseDto)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') && hasPermission(#postId, 'POST', 'DELETE')")
     @DeleteMapping("/{postId}")
     fun deletePost(@PathVariable postId: Long): ResponseEntity<DeleteResponseDto> {
         postingService.deletePost(postId)

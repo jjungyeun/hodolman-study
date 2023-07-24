@@ -33,7 +33,6 @@ import org.springframework.stereotype.Service
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity()
 class SecurityConfig(
     val objectMapper: ObjectMapper,
     val memberRepository: MemberRepository

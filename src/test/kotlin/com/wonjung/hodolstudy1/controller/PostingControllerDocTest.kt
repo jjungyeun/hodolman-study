@@ -1,6 +1,7 @@
 package com.wonjung.hodolstudy1.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.wonjung.hodolstudy1.config.WithCustomMockUser
 import com.wonjung.hodolstudy1.domain.Member
 import com.wonjung.hodolstudy1.domain.Post
 import com.wonjung.hodolstudy1.dto.req.PostingCreateDto
@@ -83,7 +84,7 @@ class PostingControllerDocTest(
 
     @Test
     @DisplayName("글 등록")
-    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
+    @WithCustomMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     fun posting_save_test() {
         // given
         val title = "제목입니다."
