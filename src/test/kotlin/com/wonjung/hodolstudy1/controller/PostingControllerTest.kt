@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
@@ -34,6 +35,7 @@ class PostingControllerTest(
     }
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])  // 이 정보로 인증이 완료된 것으로 가정됨
     @DisplayName("POST /posts 요청 시 title, content 값은 필수다.")
     fun posting_validation_test() {
         // given
@@ -54,6 +56,7 @@ class PostingControllerTest(
     }
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     @DisplayName("POST /posts 요청 시 게시글을 DB에 저장한다.")
     fun posting_save_test() {
         // given
@@ -131,6 +134,7 @@ class PostingControllerTest(
 
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     @DisplayName("PATCH /posts/{postId} 요청 시 게시글을 수정한다.")
     fun posting_edit_test() {
         // given
@@ -160,6 +164,7 @@ class PostingControllerTest(
 
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     @DisplayName("DELETE /posts/{postId} 요청 시 게시글을 삭제한다.")
     fun posting_delete_test() {
         // given
@@ -203,6 +208,7 @@ class PostingControllerTest(
     }
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     @DisplayName("게시글을 하나 삭제하는 데 실패한다.")
     fun delete_one_post_and_fail() {
         // given
@@ -224,6 +230,7 @@ class PostingControllerTest(
     }
 
     @Test
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     @DisplayName("게시글을 하나 수정하는 데 실패한다.")
     fun edit_one_post_and_fail() {
         // given

@@ -19,6 +19,7 @@ import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.*
 import org.springframework.restdocs.snippet.Attributes
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
@@ -71,6 +72,7 @@ class PostingControllerDocTest(
 
     @Test
     @DisplayName("글 등록")
+    @WithMockUser(username = "hello@gmail.com", roles = ["ADMIN"])
     fun posting_save_test() {
         // given
         val title = "제목입니다."
